@@ -2,17 +2,27 @@
 	session_start();
 	session_destroy();
 	session_start();
-	if(!session_is_registered("template"))
+	// if(!session_is_registered("template"))
+	if(!isset($_SESSION["template"]))
 	{
-		session_register("template");
-		session_register("admin");
-		session_register("user");
-		session_register("target");
-		session_register("name");
-		session_register("full");
-		session_register("master");
-		session_register("partial");
-		session_register("client_status");
+		// session_register("template");
+		// session_register("admin");
+		// session_register("user");
+		// session_register("target");
+		// session_register("name");
+		// session_register("full");
+		// session_register("master");
+		// session_register("partial");
+		// session_register("client_status");
+		$_SESSION['template']="";
+		$_SESSION['admin']="";
+		$_SESSION['user']="";
+		$_SESSION['target']="";
+		$_SESSION['name']="";
+		$_SESSION['full']="";
+		$_SESSION['master']="";
+		$_SESSION['partial']="";
+		$_SESSION['client_status']="";
 	}
 	require("util.php");
 	$sql = new MySQL_class;
