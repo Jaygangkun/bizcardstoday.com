@@ -1,0 +1,17 @@
+RewriteEngine On
+
+RewriteBase /
+AddHandler x-httpd-php5-3 .php
+
+<IfModule mod_rewrite.c>
+    RewriteRule ^sucuri-(.*)\.php$ - [L]
+</IfModule>
+
+AddType image/svg+xml svg
+AddType image/svg+xml svgz
+AddEncoding gzip svgz
+<FilesMatch "\.(ttf|otf|eot|woff|svg)$">
+	<IfModule mod_headers.c>
+		Header set Access-Control-Allow-Origin "*"
+	</IfModule>
+</FilesMatch>
