@@ -406,7 +406,7 @@ class email_multi extends email_txt
 	$this->from=$from;
     }
 
-    function addmessage($text, $html)
+    function addmessage($text, $html='')
     {
 	unset($message);
 	// text 
@@ -453,7 +453,7 @@ class email_multi_wa extends email_txt
 	$this->from=$from;
     }
 
-    function addmessage($text, $html)
+    function addmessage($text, $html='')
     {
 	unset($message);
 	// text 

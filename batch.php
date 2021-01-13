@@ -1,6 +1,7 @@
 <?php
 	session_start(); //Start the session
-	if(!session_is_registered("template")) //Boot to homepage if card template is not set.
+	// if(!session_is_registered("template")) //Boot to homepage if card template is not set.
+	if(!isset($_SESSION["template"])) //Boot to homepage if card template is not set.
 	{
 		header("Location: index2.php");
 	}else 

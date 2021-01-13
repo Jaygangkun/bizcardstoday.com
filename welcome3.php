@@ -34,15 +34,18 @@ else if(isset($_GET['ricksays']))
 else $ricksays = '';
 
 //Boot to homepage if card template is not set.
-if($template == 0 || !session_is_registered("template") || $template == "") 
+// if($template == 0 || !session_is_registered("template") || $template == "") 
+if($template == 0 || !isset($_SESSION["template"]) || $template == "") 
 	header("Location: index2.php");
 
 require("util.php");	//db wrapper
 $sql = new MySQL_class;
 $sql->Create("bizcardstodaynew"); //bus_card
 
-if(!session_is_registered("Company"))
-	session_register("Company");
+// if(!session_is_registered("Company"))
+if(!isset($_SESSION["Company"]))
+	// session_register("Company");
+	$_SESSION['Company'] = '';
 
 $Approval_Req = "";
 $Approval_Email = "";

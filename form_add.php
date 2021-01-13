@@ -1,14 +1,17 @@
 <?php
 	session_start();
 // 	if($template==0 || !session_is_registered("template") || $template=="") //Boot to homepage if card template is not set.
-	if(!session_is_registered("template")) //Boot to homepage if card template is not set.
+	// if(!session_is_registered("template")) //Boot to homepage if card template is not set.
+	if(!isset($_SESSION["template"])) //Boot to homepage if card template is not set.
 		header("Location: index2.php");
 	require("util.php");
 	
 	$sql=new MySQL_class;
 	$sql->Create("bizcardstodaynew");
-	if(!session_is_registered("form_local"))
-		session_register("form_local");
+	// if(!session_is_registered("form_local"))
+	if(!isset($_SESSION["form_local"]))
+		// session_register("form_local");
+		$_SESSION['form_local'] = '';
 	
 	if($form_local['Form_Name']!="")
 	{
@@ -20,7 +23,7 @@
 			$statement = "INSERT INTO Forms SET ";
 		foreach($form_local as $a=>$b)
 		{
-			if($a!="Filename" && !ereg("[0-9].", $a) && $a!="from")
+			if($a!="Filename" && !preg_match("/[0-9]./", $a) && $a!="from")
 				$statement .= $a . "=\"$b\", ";
 		}
 		$statement .= " Filename=\"" . $form_local['Filename'] . "\"";

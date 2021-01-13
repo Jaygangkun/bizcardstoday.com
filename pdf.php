@@ -1,12 +1,15 @@
 <?php
 session_start();
 // 	if($template==0 || !session_is_registered("template") || $template=="")
-if(!session_is_registered("template")) //Boot to homepage if card template is not set.
+// if(!session_is_registered("template")) //Boot to homepage if card template is not set.
+if(!isset($_SESSION["template"])) //Boot to homepage if card template is not set.
 header("Location: index2.php");
 
-if(!session_is_registered("PDF"))
+// if(!session_is_registered("PDF"))
+if(!isset($_SESSION["PDF"]))
 {
-session_register("PDF");
+// session_register("PDF");
+$_SESSION['PDF'] = '';
 }
 require("util.php");
 require("emailer.php");

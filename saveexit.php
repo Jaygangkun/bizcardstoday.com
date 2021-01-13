@@ -282,7 +282,7 @@ while($j<=$numlines)
 {
 	//$_POST['Line_' . $j] = ereg_replace('&(amp;| *)reg;', '', str_replace('*', '', htmlentities(stripslashes( str_replace("&quot;", "\"", $_POST['Line_' . $j])))));
 	$_POST['Line_' . $j] =
-		ereg_replace('&(amp;| *)reg;', '', stripslashes(str_replace('*', '', htmlentities(str_replace("&quot;", "\"", $_POST['Line_' . $j]), ENT_NOQUOTES))));
+	preg_replace('/(amp;| *)reg;/', '', stripslashes(str_replace('*', '', htmlentities(str_replace("&quot;", "\"", $_POST['Line_' . $j]), ENT_NOQUOTES))));
 	$j++;
 }
 foreach($lines as $a=>$b)

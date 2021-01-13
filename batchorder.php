@@ -1,7 +1,8 @@
 <?php
 	session_start(); //Start the session
 // 	if($template==0 || !session_is_registered("template") || $template=="") //  boot to homepage if the card template is unspecified
-	if(!session_is_registered("template")) //Boot to homepage if card template is not set.
+	// if(!session_is_registered("template")) //Boot to homepage if card template is not set.
+	if(!isset($_SESSION["template"])) //Boot to homepage if card template is not set.
 		header("Location: index2.php");
 
 	require("util.php"); // db wrapper
@@ -13,7 +14,7 @@
 	{
 		foreach($_POST as $a=>$b)
 		{
-			if($b!=0 && ereg('^[0-9]+$', $a)) //If the value is not 0 and the key is a number
+			if($b!=0 && preg_match('/^[0-9]+$/', $a)) //If the value is not 0 and the key is a number
 			{
 				$card_quality=$_POST[$a . "_quality"];
 				//Update the card record with this new order.

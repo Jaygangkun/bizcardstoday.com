@@ -63,7 +63,7 @@ flog('card', $_SESSION['card']);
 		
 	//Brand new card.  Make new ID and fill default with last ordered card.
 	// +A
-	if($_GET['Action']=='New' || ($card['Action']=='New' AND $_POST['redraw'] == 'y')) //  
+	if(isset($_GET['Action']) && $_GET['Action']=='New' || ($card['Action']=='New' AND $_POST['redraw'] == 'y')) //  
 	{
 flog('New');
 
@@ -692,7 +692,7 @@ flog('cardNameOut', $cardNameOut);
 					}
 					echo "\t\t\t\t\t\t\t<td><input type=checkbox name=symbol[] value=\"" . 
 						$sql->data['ID'] . "\"";
-					if(ereg("," . $sql->data['ID'] . ",", $card['Symbols']))
+					if(preg_match("/," . $sql->data['ID'] . ",/", $card['Symbols']))
 					{
 						echo " checked";
 					}

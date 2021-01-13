@@ -34,7 +34,7 @@ if(isset($_SESSION['template']))
 	$_POST['Card_ID'] = $_SESSION['card']['ID'];
 	foreach($card as $a=>$b)
 	{
-		if(ereg("^([0-9])*", $a))
+		if(preg_match("/^([0-9])*/", $a))
 			$card[$a]="";
 	}
 	

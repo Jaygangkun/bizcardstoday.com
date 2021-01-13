@@ -60,8 +60,8 @@ if ($_POST['submitted'])
 		foreach($lines as $a) //Parse each line of uploaded file
 		{
 			//Fix span lines with place holder
-			$a = ereg_replace("<p><span> </span></p>", "<p><span>~~$i~~</span></p>", $a);
-			$a = ereg_replace("category=\"&ns_vars;\"", "category=\"http://ns.adobe.com/Variables/1.0/\"", $a);
+			$a = preg_replace("/<p><span> </span></p>/", "<p><span>~~$i~~</span></p>", $a);
+			$a = preg_replace("/category=\"&ns_vars;\"/", "category=\"http://ns.adobe.com/Variables/1.0/\"", $a);
 			//purge the bullet code
 			$a = str_replace("·"," ",$a);
 			$a = str_replace("•"," ",$a);
@@ -69,84 +69,84 @@ if ($_POST['submitted'])
 			//turn off borders
 			$a = str_replace("true","false",$a);
 			//Drop place holder into display lines
-			if(ereg("\">(·| ) *</tspan>", $a))
+			if(preg_match("/\">(·| ) *</tspan>/", $a))
 			{
-				$a = ereg_replace("\"> +</tspan></text>", "\">~~$i~~</tspan></text>", $a);  //The only problem with this is when Illustrator defines each space as a seperate tspan
+				$a = preg_replace("/\"> +</tspan></text>/", "\">~~$i~~</tspan></text>", $a);  //The only problem with this is when Illustrator defines each space as a seperate tspan
 				$i++;
 			}
 			
 			//Check for the start of a dataset (variable area)
-			if(ereg("<v:sampleDataSets", $a))
+			if(preg_match("/<v:sampleDataSets/", $a))
 			{
 				$dataset=true;
 			}
-			if(ereg("</v:sampleDataSets", $a)) //End of dataset, reset line counter
+			if(preg_match("/</v:sampleDataSets/", $a)) //End of dataset, reset line counter
 			{
 				$dataset=false;
 				$i=1;
 			}
 			
 			//Do Variable replacement
-			if($dataset===true && ereg("<p>.*</p>", $a))
+			if($dataset===true && preg_match("/<p>.*</p>/", $a))
 			{
-				$a = ereg_replace("<p>.*</p>", "<p>~~$i~~</p>", $a);
+				$a = preg_replace("/<p>.*</p>/", "<p>~~$i~~</p>", $a);
 				$i++;
 			}
-			if(ereg("><span.*> *</span></p>", $a))
+			if(preg_match("/><span.*> *</span></p>/", $a))
 			{
-				$a = ereg_replace("span.*>.*</span></p>", "span>~~$i~~</span></p>", $a);
+				$a = preg_replace("/span.*>.*</span></p>/", "span>~~$i~~</span></p>", $a);
 			}
 			
 			//Do picture inserts
-			if($dataset && ereg("<Photo>",$a)) //This will fix the variable set reference
+			if($dataset && preg_match("/<Photo>/",$a)) //This will fix the variable set reference
 			{
 				$a = "\t\t\t\t\t\t<Photo>~~insert shortref~~</Photo>\n";
 			}
-			if(ereg($z[0], $a)) //This has to be before $z is set so that it doesn't trip on the same line that sets it.
+			if(preg_match("/".$z[0]."/", $a)) //This has to be before $z is set so that it doesn't trip on the same line that sets it.
 			{	
 				$watch[0]=true;
 				// This variable watches for the ID tag so that we know we have gotten to the photo block
 				//echo "Set Watch[0] to true.\n<br>";
 			}
-			if(ereg("varName=\"Photo\"",$a)) //Grab the ID number of the Photo block.  This always comes substantially before the block itself
+			if(preg_match("/varName=\"Photo\"/",$a)) //Grab the ID number of the Photo block.  This always comes substantially before the block itself
 			{
 				$tag=explode("_", $a, 3);
 				$z[0]="XMLID_" . $tag[1] . "_";
 				//echo "Photo Tag found.\n<br>";
 				
 			}
-			if($watch[0] && ereg("i:linkRef=\".*\"", $a))
+			if($watch[0] && preg_match("/i:linkRef=\".*\"/", $a))
 			{
-				$a = ereg_replace("i:linkRef=\".*\"", "i:linkRef=\"~~insert shortref~~\"", $a);
+				$a = preg_replace("/i:linkRef=\".*\"/", "i:linkRef=\"~~insert shortref~~\"", $a);
 				//echo "Shortref placeholder insert\n<br>";
 			}
-			if($deleter[0] && ereg("^.*\"", $a)) //This must come before deleter is set, or the last half of the file will be skipped over.
+			if($deleter[0] && preg_match("/^.*\"/", $a)) //This must come before deleter is set, or the last half of the file will be skipped over.
 			{
 				$deleter[0]=false;
 				$watch[0]=false;
-				$a = ereg_replace("^.*\" i:", " i:", $a);
+				$a = preg_replace("/^.*\" i:/", " i:", $a);
 				//echo "End of Delete range found. Deleter[0] and Watch[0] set to false.\n<br>";
 			}
-			if($watch[0] && ereg("xlink:href=\"data:;.*",$a)) //Mark the first line of the photo block and set flags to skip to the end of the encoded info
+			if($watch[0] && preg_match("/xlink:href=\"data:;.*/",$a)) //Mark the first line of the photo block and set flags to skip to the end of the encoded info
 			{
-				$a = ereg_replace("xlink:href=\"data:;.*",  "xlink:href=\"http://www.bizcardstoday.com/~~insert picture~~\"", $a);
+				$a = preg_replace("/xlink:href=\"data:;.*/",  "xlink:href=\"http://www.bizcardstoday.com/~~insert picture~~\"", $a);
 				fwrite($output, $a);
 				$deleter[0]=true;
 				//echo "Begin Delete rand found. Deleter[0] set to true.\n<br>";
 			}
 			//Check for alignment headers
-			if(ereg("text-align=\"right\"", $a) || ereg("text-align:right", $a)) //These must be placed in exactly the right spot or they will not be applied in the browser
+			if(preg_match("/text-align=\"right\"/", $a) || preg_match("/text-align:right/", $a)) //These must be placed in exactly the right spot or they will not be applied in the browser
 				$alignment="text-anchor=\"end\"";
-			if(ereg("text-align=\"center\"", $a) || ereg("text-align:center", $a))
+			if(preg_match("/text-align=\"center\"/", $a) || preg_match("/text-align:center/", $a))
 				$alignment="text-anchor=\"middle\"";
 			$pattern = "\">~~" . ($i-1) . "~~</tspan>";
-			if($alignment!="" && ereg("<text ",$a) && ereg($pattern, $a))
+			if($alignment!="" && preg_match("/<text /",$a) && preg_match("/".$pattern."/", $a))
 			{
 				//ereg("<text .* transform=\".*\"", $a, $temp);
 				//$a = $temp[0] . " " . $a;
-				$a=ereg_replace("<text ", "<text $alignment ", $a);
+				$a=preg_replace("/<text /", "<text $alignment ", $a);
 				$alignment="";
-			}else if($alignment!="" && ereg("<text ",$a) )
+			}else if($alignment!="" && preg_match("/<text /",$a) )
 			{
 				$alignment="";
 			}

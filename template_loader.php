@@ -13,7 +13,8 @@ ChromePhp::log($_POST);
 session_start();
 
 
-if(!session_is_registered("dest_file")) session_register("dest_file");
+// if(!session_is_registered("dest_file")) session_register("dest_file");
+if(!isset($_SESSION["dest_file"])) $_SESSION["dest_file"]='';
 
 //Load all the values of the form for passback
 $_SESSION['per250'] = $_POST['per250']; //$per250
@@ -182,8 +183,8 @@ ChromePhp::log('test5');
 	    foreach($lines as $a) //Parse each line of uploaded file
 	    {
 		  //Fix span lines with place holder
-		  $a = ereg_replace("<p><span> </span></p>", "<p><span>~~$i~~</span></p>", $a);
-		  $a = ereg_replace("category=\"&ns_vars;\"", "category=\"http://ns.adobe.com/Variables/1.0/\"", $a);
+		  $a = preg_replace("/<p><span> </span></p>/", "<p><span>~~$i~~</span></p>", $a);
+		  $a = preg_replace("/category=\"&ns_vars;\"/", "category=\"http://ns.adobe.com/Variables/1.0/\"", $a);
 		  //purge the bullet code
 		  $a = str_replace(""," ",$a);
 		  $a = str_replace(""," ",$a);
@@ -198,16 +199,16 @@ ChromePhp::log('test5');
 		  if(preg_match($p1, $a))
 		  {
 		  //The only problem with this is when Illustrator defines each space as a seperate tspan
-			$a = ereg_replace("\"> +</tspan></text>", "\">~~$i~~</tspan></text>", $a);
+			$a = preg_replace("/\"> +</tspan></text>/", "\">~~$i~~</tspan></text>", $a);
 			$i++;
 		  }
 
 		  //Check for the start of a dataset (variable area)
-		  if(ereg("<v:sampleDataSets", $a))
+		  if(preg_match("/<v:sampleDataSets/", $a))
 		  {
 			$dataset=true;
 		  }
-		  if(ereg("</v:sampleDataSets", $a)) //End of dataset, reset line counter
+		  if(preg_match("/</v:sampleDataSets/", $a)) //End of dataset, reset line counter
 		  {
 			$dataset=false;
 			$i=1;
@@ -216,82 +217,82 @@ ChromePhp::log('test5');
 		  //Do Variable replacement
 		  if($dataset===true)
 		  {
-			if(ereg("trait=\"fileref\"", $a))
+			if(preg_match("/trait=\"fileref\"/", $a))
 			{
-			   ereg("(varName=\")(.+)([\" ]{2})", $a, $temp);
+				preg_match("/(varName=\")(.+)([\" ]{2})/", $a, $temp);
 			   print_r($temp);
 			   $photo_var=$temp[1];
 			   print_r($temp);
 			}
 		  }
-		  if($dataset===true && ereg("<p>.*</p>", $a))
+		  if($dataset===true && preg_match("/<p>.*</p>/", $a))
 		  {
-			$a = ereg_replace("<p>.*</p>", "<p>~~$i~~</p>", $a);
+			$a = preg_replace("/<p>.*</p>/", "<p>~~$i~~</p>", $a);
 			$i++;
 		  }
-		  if(ereg("><span.*> *</span></p>", $a))
+		  if(preg_match("/><span.*> *</span></p>/", $a))
 		  {
-			$a = ereg_replace("span.*>.*</span></p>", "span>~~$i~~</span></p>", $a);
+			$a = preg_replace("/span.*>.*</span></p>/", "span>~~$i~~</span></p>", $a);
 		  }
 
 		  //Do picture inserts
 		  //This will fix the variable set reference
-		  if($dataset && ereg("<$photo_var>",$a))
+		  if($dataset && preg_match("/<$photo_var>/",$a))
 		  {
 			$a = "\t\t\t\t\t\t<$photo_var>~~insert shortref~~</$photo_var>\n";
 		  }
 		  //This will fix the variable set reference
-		  if($dataset && ereg("<Symbol1>",$a))
+		  if($dataset && preg_match("/<Symbol1>/",$a))
 		  {
 			$a = "\t\t\t\t\t\t<Symbol1>~~insert symbol1~~</Symbol1>\n";
 		  }
 		  //This will fix the variable set reference
-		  if($dataset && ereg("<Symbol2>",$a))
+		  if($dataset && preg_match("/<Symbol2>/",$a))
 		  {
 			$a = "\t\t\t\t\t\t<Symbol2>~~insert symbol2~~</Symbol2>\n";
 		  }
 		  //This will fix the variable set reference
-		  if($dataset && ereg("<Symbol3>",$a))
+		  if($dataset && preg_match("/<Symbol3>/",$a))
 		  {
 			$a = "\t\t\t\t\t\t<Symbol3>~~insert symbol3~~</Symbol3>\n";
 		  }
 		  //This will fix the variable set reference
-		  if($dataset && ereg("<Symbol4>",$a))
+		  if($dataset && preg_match("/<Symbol4>/",$a))
 		  {
 			$a = "\t\t\t\t\t\t<Symbol4>~~insert symbol4~~</Symbol4>\n";
 		  }
 		  //This has to be before $z is set so that it doesn't trip on the same line that sets it.
-		  if(ereg($z[0], $a))
+		  if(preg_match("/".$z[0]."/", $a))
 		  {
 			$watch[0]=true;
 			// This variable watches for the ID tag so that we know we have gotten to the photo block
 			echo "Set Watch[0] to true.\n<br>";
 		  }
 		  //Grab the ID number of the Photo block.  This always comes substantially before the block itself
-		  if(ereg("varName=\"Photo\"",$a))
+		  if(preg_match("/varName=\"Photo\"/",$a))
 		  {
 			$tag=explode("_", $a, 3);
 			$z[0]="XMLID_" . $tag[1] . "_";
 			echo "Photo Tag found.\n<br>";
 
 		  }
-		  if($watch[0] && ereg("i:linkRef=\".*\"", $a))
+		  if($watch[0] && preg_match("/i:linkRef=\".*\"/", $a))
 		  {
-			$a = ereg_replace("i:linkRef=\".*\"", "i:linkRef=\"~~insert shortref~~\"", $a);
+			$a = preg_replace("/i:linkRef=\".*\"/", "i:linkRef=\"~~insert shortref~~\"", $a);
 			echo "Shortref placeholder insert\n<br>";
 		  }//This must come before deleter is set, or the last half of the file will be skipped over.
-		  if($deleter[0] && ereg("^.*\"", $a))
+		  if($deleter[0] && preg_match("/^.*\"/", $a))
 		  {
 			$deleter[0]=false;
 			$watch[0]=false;
-			$a = ereg_replace("^.*\" i:", " i:", $a);
+			$a = preg_replace("/^.*\" i:/", " i:", $a);
 			echo str_replace("<", "&lt;", str_replace(">", "&gt;", $a)) . "\n<br>";
 			echo "End of Delete range found. Deleter[0] and Watch[0] set to false.\n<br>";
 		  }
 		  //Mark the first line of the photo block and set flags to skip to the end of the encoded info
-		  if($watch[0] && ereg("xlink:href=\"data:;.*",$a))
+		  if($watch[0] && preg_match("/xlink:href=\"data:;.*/",$a))
 		  {
-			$a = ereg_replace("xlink:href=\"data:;.*",
+			$a = preg_replace("/xlink:href=\"data:;.*/",
 				"xlink:href=\"http://www.bizcardstoday.com/~~insert picture~~\"", $a);
 			fwrite($output, $a);
 			$deleter[0]=true;
@@ -301,18 +302,18 @@ ChromePhp::log('test5');
 
 		  //Check for alignment headers
 		  //These must be placed in exactly the right spot or they will not be applied in the browser
-		  if(ereg("text-align=\"right\"", $a) || ereg("text-align:right", $a))
+		  if(preg_match("/text-align=\"right\"/", $a) || preg_match("/text-align:right/", $a))
 			$alignment="text-anchor=\"end\"";
-		  if(ereg("text-align=\"center\"", $a) || ereg("text-align:center", $a))
+		  if(preg_match("/text-align=\"center\"/", $a) || preg_match("/text-align:center/", $a))
 			$alignment="text-anchor=\"middle\"";
 		  $pattern = "\">~~" . ($i-1) . "~~</tspan>";
-		  if($alignment!="" && ereg("<text ",$a) && ereg($pattern, $a))
+		  if($alignment!="" && preg_match("/<text /",$a) && preg_match("/".$pattern."/", $a))
 		  {
 			//ereg("<text .* transform=\".*\"", $a, $temp);
 			//$a = $temp[0] . " " . $a;
-			$a=ereg_replace("<text ", "<text $alignment ", $a);
+			$a=preg_replace("/<text /", "<text $alignment ", $a);
 			$alignment="";
-		  }else if($alignment!="" && ereg("<text ",$a) )
+		  }else if($alignment!="" && preg_match("/<text /",$a) )
 		  {
 			$alignment="";
 		  }

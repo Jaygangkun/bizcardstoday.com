@@ -2,17 +2,22 @@
 	//This page will add Letterhead and Envelope ordering functionality (duplicated from BizForms) to Bizcards.
 	session_start();
 // 	if($template==0 || !session_is_registered("template") || $template=="") //Boot to homepage if card template is not set.
-	if(!session_is_registered("template")) //Boot to homepage if card template is not set.
+	// if(!session_is_registered("template")) //Boot to homepage if card template is not set.
+	if(!isset($_SESSION["template"])) //Boot to homepage if card template is not set.
 		header("Location: index2.php");
 	
 	require("util.php"); // db wrapper
 	$sql = new MySQL_class;
 	$sql->Create("bizcardstodaynew");
 	
-	if(!session_is_registered("proof_local"))
+	// if(!session_is_registered("proof_local"))
+	if(!isset($_SESSION["proof_local"]))
 	{
-		session_register("proof_local");
-		session_register("form");
+		// session_register("proof_local");
+		// session_register("form");
+
+		$_SESSION['proof_local'] = '';
+		$_SESSION['form'] = '';
 	}
 	
 	if($_POST['form_id']!="")

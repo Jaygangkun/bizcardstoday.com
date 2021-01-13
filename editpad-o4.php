@@ -22,7 +22,8 @@ flog('request', $_REQUEST);
 
 	if(isset($_SESSION['user'])) $user = $_SESSION['user'];
 	//$template==0 |boot to homepage  || $template==""if the card template is unspecified
- 	if(!session_is_registered("template")) 	
+	// if(!session_is_registered("template")) 	
+	if(!isset($_SESSION["template"])) 	
  	{	
 		header("Location: index2.php");	
 	}
@@ -31,11 +32,16 @@ flog('request', $_REQUEST);
 		header("Location: index2.php");	
 	}else $template = $_SESSION['template'];
 	
-	if(!session_is_registered("card")) //Register variables with session
+	// if(!session_is_registered("card")) //Register variables with session
+	if(!isset($_SESSION["card"])) //Register variables with session
 	{
-		session_register("card");
-		session_register("CurCardID");
-		session_register("ShortFile");
+		// session_register("card");
+		// session_register("CurCardID");
+		// session_register("ShortFile");
+
+		$_SESSION['card'] = '';
+		$_SESSION['CurCardID'] = '';
+		$_SESSION['ShortFile'] = '';
 	}
 
 // initialize reorderState for each log in
@@ -348,11 +354,11 @@ flog('statement', $statement);
 	}
 
 	// Replace the asterisks with the bullet code for inclusion in the card, also replace 
-	// double-quotes with &quot and the registered mark with � code
+	// double-quotes with &quot and the registered mark with � code
 	$j=1;
 	while($j<=$numlines)
 	{
-		$card['Line_' . $j] = ereg_replace('&(amp;| *)reg;', '®', stripslashes(str_replace('*', '·', 
+		$card['Line_' . $j] = preg_replace('/&(amp;| *)reg;/', '®', stripslashes(str_replace('*', '·', 
 			htmlentities(str_replace("&quot;", "\"", $card['Line_' . $j]), ENT_NOQUOTES))));
 		$j++;
 	}
@@ -685,7 +691,7 @@ flog('cardNameOut', $cardNameOut);
 					}
 					echo "\t\t\t\t\t\t\t<td><input type=checkbox name=symbol[] value=\"" . 
 						$sql->data['ID'] . "\"";
-					if(ereg("," . $sql->data['ID'] . ",", $card['Symbols']))
+					if(preg_match("/,/" . $sql->data['ID'] . ",", $card['Symbols']))
 					{
 						echo " checked";
 					}

@@ -7,10 +7,14 @@
 	
 	$sql=new MySQL_class;
 	$sql->Create("bizcardstodaynew");
-	if(!session_is_registered("form_local"))
+	// if(!session_is_registered("form_local"))
+	if(!isset($_SESSION["form_local"]))
 	{
-		session_register("form_local");
-		session_register("form");
+		// session_register("form_local");
+		// session_register("form");
+
+		$_SESSION['form_local'] = '';
+		$_SESSION['form'] = '';
 	}
 		
 	if($_POST['reloader']=='y')

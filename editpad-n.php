@@ -33,11 +33,11 @@ flog('statement', $statement);
 		$j++;
 	}
 
-	//Replace the asterisks with the bullet code for inclusion in the card, also replace double-quotes with &quot and the registered mark with � code
+	//Replace the asterisks with the bullet code for inclusion in the card, also replace double-quotes with &quot and the registered mark with � code
 	$j=1;
 	while($j<=$numlines)
 	{
-		$card['Line_' . $j] = ereg_replace('&(amp;| *)reg;', '®', stripslashes(str_replace('*', '·', htmlentities(str_replace("&quot;", "\"", $card['Line_' . $j]), ENT_NOQUOTES))));
+		$card['Line_' . $j] = preg_replace('/&(amp;| *)reg;/', '®', stripslashes(str_replace('*', '·', htmlentities(str_replace("&quot;", "\"", $card['Line_' . $j]), ENT_NOQUOTES))));
 		$j++;
 	}
 //flog('lines', $lines);
@@ -87,7 +87,8 @@ flog('statement', $statement);
 	}
 
 	if(isset($_SESSION['user'])) $user = $_SESSION['user'];
- 	if(!session_is_registered("template")) //$template==0 |boot to homepage  || $template==""if the card template is unspecified
+	 // if(!session_is_registered("template")) //$template==0 |boot to homepage  || $template==""if the card template is unspecified
+	if(!isset($_SESSION["template"])) //$template==0 |boot to homepage  || $template==""if the card template is unspecified
 	{	
 		header("Location: index2.php");	
 	}
@@ -96,11 +97,17 @@ flog('statement', $statement);
 		header("Location: index2.php");	
 	}else $template = $_SESSION['template'];
 	
-	if(!session_is_registered("card")) //Register variables with session
+	// if(!session_is_registered("card")) //Register variables with session
+	if(!isset($_SESSION["card"])) //Register variables with session
 	{
-		session_register("card");
-		session_register("CurCardID");
-		session_register("ShortFile");
+		// session_register("card");
+		// session_register("CurCardID");
+		// session_register("ShortFile");
+
+		$_SESSION['card'] = '';
+		$_SESSION['CurCardID'] = '';
+		$_SESSION['ShortFile'] = '';
+
 	}
 	require("util.php"); // db wrapper
 	$sql = new MySQL_class;
@@ -426,11 +433,11 @@ flog('statement', $statement);
 		$j++;
 	}
 
-	//Replace the asterisks with the bullet code for inclusion in the card, also replace double-quotes with &quot and the registered mark with � code
+	//Replace the asterisks with the bullet code for inclusion in the card, also replace double-quotes with &quot and the registered mark with � code
 	$j=1;
 	while($j<=$numlines)
 	{
-		$card['Line_' . $j] = ereg_replace('&(amp;| *)reg;', '®', stripslashes(str_replace('*', '·', htmlentities(str_replace("&quot;", "\"", $card['Line_' . $j]), ENT_NOQUOTES))));
+		$card['Line_' . $j] = preg_replace('/&(amp;| *)reg;/', '®', stripslashes(str_replace('*', '·', htmlentities(str_replace("&quot;", "\"", $card['Line_' . $j]), ENT_NOQUOTES))));
 		$j++;
 	}
 //flog('lines', $lines);
@@ -760,7 +767,7 @@ flog('cardNameOut', $cardNameOut);
 					}
 					echo "\t\t\t\t\t\t\t<td><input type=checkbox name=symbol[] value=\"" . 
 						$sql->data['ID'] . "\"";
-					if(ereg("," . $sql->data['ID'] . ",", $card['Symbols']))
+					if(preg_match("/,/" . $sql->data['ID'] . ",", $card['Symbols']))
 					{
 						echo " checked";
 					}
