@@ -509,7 +509,7 @@ flog('statement', $statement);
 	<table border=0 cellspacing=5 cellpadding=5>
 	<tr>
 		<td>
-			<table border=0 cellspacing=0 cellpadding=0><tr><td><embed src="<?php echo $file ?>"  
+			<table border=0 cellspacing=0 cellpadding=0><tr><td><embed src="<?php echo $file ?>?v=<?php echo time()?>"  
 			<?php echo $dimension; ?> type="image/svg+xml" 
 				pluginspage="http://www.adobe.com/svg/viewer/install/auto/"></td></tr></table>
 			<?php 	//Pop Back Side button if needed
